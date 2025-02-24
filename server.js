@@ -23,5 +23,5 @@ app.get("/collections", async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 3000; // Use dynamic port
+const PORT = process.env.PORT || 4000; // Use dynamic port
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
