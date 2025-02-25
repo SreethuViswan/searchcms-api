@@ -23,5 +23,32 @@ app.get("/collections", async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 4000; // Use dynamic port
+
+
+
+app.get("/collections/:collectionId/items", async (req, res) => {
+    const { collectionId } = req.params;
+    console.log(`Fetching items from collection: ${collectionId}`);
+
+    try {
+        const response = await fetch(`https://api.webflow.com/v2/collections/${collectionId}/items`, {
+            headers: {
+                Authorization: `Bearer ${WEBFLOW_API_TOKEN}`,
+                "Accept-Version": "1.0.0" // Add versioning if required
+            },
+        });
+
+        const data = await response.json();
+        console.log("Response from Webflow API:", data);
+
+        if (!response.ok) throw new Error(data.message || "Failed to fetch collection items");
+
+        res.json(data);
+    } catch (error) {
+        console.error("Error fetching collection items:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
