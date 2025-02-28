@@ -5,6 +5,8 @@ import fetch from "node-fetch";
 const app = express();
 app.use(cors());
 
+
+
 const WEBFLOW_API_TOKEN = "bd7800a7abf8d6d644b226eba16cdfbbf82c06c1b05a8dec40999bed1b8dd215";
 
 // Fetch all sites
@@ -89,6 +91,54 @@ app.get("/collections/:collectionId/items", async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+
+// ✅ New: Fetch all pages for a specific site
+app.get("/pages", async (req, res) => {
+    const { siteId } = req.query;
+
+    if (!siteId) {
+        return res.status(400).json({ error: "siteId query parameter is required" });
+    }
+
+    try {
+        const response = await fetch(`https://api.webflow.com/v2/sites/${siteId}/pages`, {
+            headers: {
+                Authorization: `Bearer ${WEBFLOW_API_TOKEN}`
+            }
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "Failed to fetch pages");
+
+        res.json(data.pages);  // Return the list of pages
+    } catch (error) {
+        console.error("Error fetching pages:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ✅ New: Fetch DOM content for a specific page
+app.get("/pages/:pageId/dom", async (req, res) => {
+    const { pageId } = req.params;
+
+    try {
+        const response = await fetch(`https://api.webflow.com/v2/pages/${pageId}/dom`, {
+            headers: {
+                Authorization: `Bearer ${WEBFLOW_API_TOKEN}`
+            }
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "Failed to fetch page DOM");
+
+        res.json(data);  // Return full page DOM data
+    } catch (error) {
+        console.error("Error fetching page DOM:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
