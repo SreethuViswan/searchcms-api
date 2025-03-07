@@ -10,41 +10,34 @@ app.use(cors());
 const WEBFLOW_API_TOKEN = "bd7800a7abf8d6d644b226eba16cdfbbf82c06c1b05a8dec40999bed1b8dd215";
 
 // Fetch all sites
-async function getAllSites() {
-    const response = await fetch('https://api.webflow.com/v2/sites', {
-        headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${WEBFLOW_API_TOKEN}`,
-        },
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to fetch sites from Webflow');
-    }
-
-    const data = await response.json();
-
-    console.log('Fetched sites:', JSON.stringify(data, null, 2)); // Debug log to check structure
-
-    const sites = data.sites.map(site => ({
-        id: site.id,
-        displayName: site.displayName,
-        shortName: site.shortName,
-    }));
-
-    return sites;
-}
-
-// Endpoint to get all site IDs and names
 app.get('/get-sites', async (req, res) => {
     try {
-        const sites = await getAllSites();
+        const response = await fetch('https://api.webflow.com/v2/sites', {
+            headers: {
+                Accept: 'application/json',
+                Authorization: `Bearer ${WEBFLOW_API_TOKEN}`,
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch sites from Webflow');
+        }
+
+        const data = await response.json();
+        console.log('Fetched sites:', JSON.stringify(data, null, 2));
+
+        const sites = data.sites.map(site => ({
+            id: site.id,
+            displayName: site.displayName,
+            shortName: site.shortName,
+        }));
+
         res.json(sites);
     } catch (error) {
-        console.error('Error fetching sites:', error);
         res.status(500).json({ error: error.message });
     }
 });
+
 
 // Fetch collections for a specific site
 app.get("/collections", async (req, res) => {
